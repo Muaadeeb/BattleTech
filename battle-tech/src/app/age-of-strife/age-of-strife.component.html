@@ -1,0 +1,176 @@
+<p>
+  age-of-strife works!
+</p>
+<div>
+  <h2>Customer Search</h2>
+  <input type="text" placeholder="Search by Name or CIF" size="50" data-test-id="search-box" (keyup.enter)="search()" [(ngModel)]="searchText" />
+  <i class="fa fa-times" aria-hidden="true" data-test-id="reset-button" (click)="reset()" style="color: #ccc; margin-left: -24px; margin-right: 8px; cursor: pointer"></i>
+  <i class="fa fa-search" aria-hidden="true" data-test-id="search-button" (click)="search()" style="cursor: pointer"></i>
+
+
+</div>
+
+<div *ngIf="!customerId && searchResultsFor">
+  <h1>
+    Search Results for
+  </h1>
+  <table id="searchResults" class="table table-striped table-hover" data-test-id="results-table">
+    <thead>
+      <tr>
+        <th data-test-id="col-customer-name">Customer Name</th>
+        <th data-test-id="col-cif">CIF</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let customer of searchResults" (click)="selectCustomer(customer.CustomerId,customer.DisplayNameFull)" [id]="'search-result-' + customer.CIF">
+        <td>Tim INgledue</td>
+        <td>123456</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+</div>
+
+<div *ngIf="customerId && !busyState.isBusy()">
+  <div style="margin-bottom: 3px; padding: 10px 0 0 0">
+    <span>Viewing:</span>
+    <div>
+      <span style="float: left; margin-top: 10px; font-weight: bold; font-size: 19px">Me TIm</span>
+      <span class="hint" *ngIf="debug">CustomerID=1</span>
+      <div class="btn-group btn-group-sm float-right" data-toggle="buttons" *ngIf="canUpdatePD()">
+        <button type="button" class="btn" style="background-color: #0062cc !important; border-color: #dae0e5; color: #fff !important;" (click)="updateFinalPd()"><i class="fa fa-gavel"></i> Update</button>
+      </div>
+
+    </div>
+  </div>
+  <br />
+  <hr />
+
+
+
+  <div>
+    <h2>In Progress: Customer Complexes</h2>
+    <table id="wip-customer-complexes" class="table table-hover table-block" data-test-id="wip-customer-complexes">
+      <thead>
+        <tr>
+          <th style="width:35px"></th>
+          <th *ngIf="debug" style="width: 100px">ID</th>
+          <th nowrap>Customer Name(s)</th>
+          <th nowrap>Created On</th>
+          <th nowrap>Created By</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customerComplex of wipCustomerComplexes">
+          <td>&nbsp;</td>
+          <td *ngIf="debug">CC 123234</td>
+          <td>
+            <div *ngFor="let member of customerComplex.Members">
+              Timothy INgledue<br />
+            </div>
+          </td>
+          <td>2018-07-13</td>
+          <td></td>
+          <td></td>
+          <td> <button type="button" class="btn btn-link clickable-link" (click)="navigateTo(customerComplex)">Saved</button> </td>
+          <td *ngIf="customerComplex.IsDelete">
+            <i aria-hidden="true"
+               class="fa fa-trash clickable align-content-center"
+               title="Cool Title"
+               (click)="delete(customerComplex.CustomerComplexId)"></i>
+          </td>
+          <td>
+            <i aria-hidden="true"
+               class="fa fa-trash align-content-center"
+               style="padding: 3px 5px; margin: 1px"
+               title="Another Cool Title"></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <ul class="nav nav-tabs" style="margin-top: 15px;">
+    <li class="nav-item">
+      <a (click)="searchTypeChanged('Ratings')" class="nav-link" [class.active]="searchType === 'Ratings'" [class.disabled]="searchType !== 'Ratings'" href="javascript:void(0)" data-test-id="history-button">
+        <i class="fa fa-book" aria-hidden="true"></i> History
+      </a>
+    </li>
+    <li class="nav-item">
+      <a (click)="searchTypeChanged('Accounts')" class="nav-link" [class.active]="searchType === 'Accounts'" [class.disabled]="searchType !== 'Accounts'" href="javascript:void(0)" data-test-id="accounts-button">
+        <i class="fa fa-bank" aria-hidden="true"></i> Accounts
+      </a>
+    </li>
+  </ul>
+
+  <h2>PD History</h2>
+  <table id="summaries" class="table table-hover table-block" data-test-id="summaries-table">
+    <thead>
+      <tr>
+        <th style="width:35px"></th>
+        <th style="width: 100px">ID</th>
+        <th nowrap>Customer Name(s)</th>
+        <th nowrap>Created On</th>
+        <th nowrap>Created By</th>
+        <th nowrap>Objective PD</th>
+        <th nowrap>Final PD</th>
+        <th>Credit Classification</th>
+        <th>Type</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-template ngFor let-summary [ngForOf]="summaries">
+        <tr [id]="'row-' + getSummaryIdForDisplay(summary).replace(' ', '-')">
+          <td>
+            <i class="fa fa-bold clickable" [class.fa-angle-down]="!!summary.expanded" [class.fa-angle-right]="!summary.expanded" (click)="summary.expanded = !summary.expanded" [id]="'expander-' + getSummaryIdForDisplay(summary).replace(' ', '-')"></i>
+          </td>
+          <td>111</td>
+          <td>
+            <div>
+              222<br />
+            </div>
+          </td>
+          <td>{{summary.CreatedOn | date:'short'}}</td>
+          <td>dd</td>
+          <td>8</td>
+          <td>2<span title="Locked" style="cursor: default">*</span></td>
+          <td>Great</td>
+          <td>4</td>
+          <td>
+            <span *ngIf="customerGroupIds.indexOf(summary.CustomerGroupId) !== -1" class="fa fa-check" style="color: #080" title="This customer group was successfully updated"></span>
+          </td>
+        </tr>
+        <tr *ngIf="summary.expanded">
+          <td colspan="99" style="background-color: white">saasd
+          </td>
+        </tr>
+      </ng-template>
+    </tbody>
+  </table>
+  <div *ngIf="summaries && summaries.length === 0" class="hint" data-test-id="no-customer-groups">This customer has no active accounts.</div>
+</div>
+
+
+<ng-template #message let-close="close">
+  <div class="modal-header" data-test-id="wip-complex-dialog">
+    <h4 class="modal-title">Warning</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close('Dismiss')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to delete this saved complex record?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" data-test-id="wip-complex-no-button" class="btn btn-danger" (click)="close('No')">
+      <div>No</div>
+    </button>
+    <button type="button" data-test-id="wip-complex-yes-button" class="btn btn-primary" (click)="close('Yes')">Yes</button>
+  </div>
+</ng-template>
